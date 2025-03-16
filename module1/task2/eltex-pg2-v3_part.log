@@ -1,0 +1,23 @@
+screen -S "пользователь в системе_part2" -L -Logfile "eltex-pg2-v3_part.log"
+compgen -c ls
+compgen -v HIST
+echo $HISTSIZE
+ls -a ~ | grep '^\.'
+export HISTTIMEFORMAT="%F %T "
+date
+history
+PROMPT_COMMAND="history -a"
+echo "test"
+history
+history -a; cat ~/.bash_history | tail
+DATE=$(date +%Y-%m-%d)
+echo $DATE
+TIME=$(date +%H:%M:%S)
+echo $TIME
+DATE_TIME="$DATE $TIME"
+echo $DATE_TIME
+find /bin /sbin -type f -name '*[0-9]*'
+PS1="\u@\h-\A> "
+export PS1
+bash
+mkdir $(date +"%Y")-{01..12}
