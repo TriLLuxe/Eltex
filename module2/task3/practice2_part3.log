@@ -1,0 +1,24 @@
+git config --global user.name TriLLuxe
+git config --global user.email glazunovkd@gmail.com
+ssh-keygen -t ed25519 -f ~/.ssh/TriLLuxe
+gh auth login
+gh auth setup-git --hostname github.com
+gh auth status
+gh repo create --public Eltex
+scp root@172.16.9.203:report_part1.txt
+Аналогично с остальными файлами
+git add .
+git status
+git commit (введите комментарий)
+git push
+mkdir ~/Eltex_clone && cd ~/Eltex_clone
+git clone https://github.com/TriLLuxe/Eltex.git .
+cd ~/TriLLuxeRep git add README.md
+git commit -m Добавлено изменение для второй практики git add README.md
+git commit -m Добавлено изменение для второй практики git add README.md
+git commit -m Добавлено изменение для второй практики
+git push origin main
+git fetch
+git log origin/main
+git diff main origin/main
+git merge

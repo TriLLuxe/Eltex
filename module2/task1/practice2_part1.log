@@ -1,0 +1,74 @@
+Hi
+ssh-keygen -t rsa
+ssh-copy-id root@<IP_адрес_сервера_2>
+ssh root@<IP_адрес_сервера_2>
+cat ~/.ssh/authorized_keys
+ls -l ~/.ssh/authorized_keys
+useradd -m -s /bin/bash user1
+passwd user1
+adduser user2
+adduser user3
+usermod -s /usr/sbin/nologin user3
+su user3
+su -s /bin/bash user3
+logout
+groupadd sharedgroup
+usermod -aG sharedgroup user1
+usermod -aG sharedgroup user2
+usermod -aG sharedgroup user3
+groups user1
+groups user2
+groups user3
+mkdir /opt/share
+chown :sharedgroup /opt/share
+chmod g+rwxs /opt/share
+su user1
+echo 'umask 007' >> ~/.bashrc
+su user1 -c 'touch /opt/share/file1'
+su user2 -c 'touch /opt/share/file2'
+su user3 -c 'touch /opt/share/file3'
+su -s /bin/bash user3 -c 'touch /opt/share/file3'
+su user1 -c 'rm /opt/share/file2'
+chmod +t /opt/share
+su user1 -c 'touch /opt/share/file1'
+su user2 -c 'touch /opt/share/file2'
+su user3 -c 'touch /opt/share/file3'
+su user1 -c 'rm /opt/share/file2'
+user1 ALL=(ALL) NOPASSWD: /bin/dmesg
+sudo visudo
+su user1
+sudo dmesg
+exit
+sudo touch /usr/local/bin/dmesg_suid.sh
+sudo chmod 755 /usr/local/bin/dmesg_suid.sh
+sudo chown root:root /usr/local/bin/dmesg_suid.sh
+sudo chmod u+s /usr/local/bin/dmesg_suid.sh
+sudo chown root:user2 /usr/local/bin/dmesg_suid.sh
+sudo chmod 4750 /usr/local/bin/dmesg_suid.sh
+su user2
+exit
+echo kernel.dmesg_restrict = 0 | sudo tee -a /etc/sysctl.conf
+sudo sysctl -p
+su user2
+/usr/local/bin/dmesg_suid.sh
+exit
+chage -M 10 user1
+chage -M 10 user2
+chage -M 10 user3
+echo 'Глазунов Кирилл' >> /etc/motd
+rsync -a /etc/ /root/etc_backup/
+tar -czf /root/etc_backup.tar.gz -C /root etc_backup
+tar -cf /root/etc_backup.tar -C /root etc_backup
+7z a /root/etc_backup.tar.7z /root/etc_backup.tar
+tar -cjf /root/etc_backup.tar.bz2 -C /root etc_backup
+ls -lh /root/etc_backup.tar.*
+date >> /etc/motd
+rsync -a /etc/ /root/etc_backup/
+tar -czf /root/etc_backup.tar.gz /root/etc_backup
+mkdir -p /root/etc_backup_bzip2_extracted
+tar -xjf /root/etc_backup.tar.bz2 -C /root/etc_backup_bzip2_extracted
+diff -r /root/etc_backup_bzip2_extracted/etc_backup /root/etc_backup
+mkdir -p /root/etc_backup_gzip
+tar -xzf /root/etc_backup.tar.gz -C /root/etc_backup_gzip
+7z x /root/etc_backup.tar.7z -o/root/etc_backup_7zip
+diff /root/etc_backup_gzip/etc_backup/motd /root/etc_backup_7zip/etc_backup/motd
