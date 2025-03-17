@@ -1,0 +1,13 @@
+cat > template_tasl.sh
+chmod +x template_task.sh
+Для теста в скрипте время ожидания поменял на 5сек+rand(5се)к от 30+rand(1800)
+sh template_task.log
+cat > observer.sh
+chmod +x observer.sh
+(crontab -l 2>/dev/null; echo "* * * * * observer.sh") | crontab -
+cp template_task.sh task1.sh
+cp template_task.sh task2.sh
+cp template_task.sh task3.sh
+cat > config.txt 
+tar -czf report.tar.gz report_*.log observer.log template_task.sh observer.sh config.txt
+crontab -r

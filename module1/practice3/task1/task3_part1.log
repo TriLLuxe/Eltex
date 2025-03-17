@@ -1,0 +1,18 @@
+su - user1
+ps -eLf | awk '{print $2}' | sort | uniq -c | awk '$1 > 1' | wc -l
+top->нажимаем f-> убираем VIRT, RES, SHR при помощи пробела-> добавляю RUSER после USER->w->q
+passwd
+top->u->находим PID passwd->k->PID->15,2,3,9
+vim ~/file_task3.txt
+нажимаем ctrl+z
+sleep 600
+jobs
+bg
+pgrep sleep
+renice 10 -p 19400
+ps -o pid,ni,comm -p 19400
+fg %1
+kill -15 
+jobs
+trap 'echo "Меня голыми руками не возьмёшь\!"' SIGINT SIGQUIT
+Нажимаем ctrl+c и тестируем
