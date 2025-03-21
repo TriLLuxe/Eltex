@@ -1,8 +1,11 @@
 ﻿### C template
 # Prerequisites
 *.d
-#.idea
-*.idea
+# Исключение папки настроек CLion
+.idea/
+
+# Исключение папки сборки CMake
+cmake-build-debug/
 # Object files
 *.o
 *.ko
