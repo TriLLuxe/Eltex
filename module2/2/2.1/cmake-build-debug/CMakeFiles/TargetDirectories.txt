@@ -1,3 +1,0 @@
-C:/Study/6_sem/Eltex/module2/2/2.1/cmake-build-debug/CMakeFiles/2_1.dir
-C:/Study/6_sem/Eltex/module2/2/2.1/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Study/6_sem/Eltex/module2/2/2.1/cmake-build-debug/CMakeFiles/rebuild_cache.dir
