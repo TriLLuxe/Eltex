@@ -1,36 +1,31 @@
 #include "header.h"
 #include <stdio.h>
 #include <stdlib.h>
-#ifdef _WIN32
-#include <windows.h>
-#endif
+
 
 int main() {
-#ifdef _WIN32
-    SetConsoleOutputCP(1251); // Windows-1251 для вывода
-    SetConsoleCP(1251);       // Windows-1251 для ввода
-#endif
+
 
     Contact* contacts = NULL;
     unsigned int contact_count = 0;
-    const char* filename = "contacts.txt";
+    const char* filename = "contacts.csv";
 
     load_from_file(&contacts, &contact_count, filename);
 
     while (1) {
-        printf("\nМеню:\n");
-        printf("1. Добавить контакт\n");
-        printf("2. Редактировать контакт\n");
-        printf("3. Удалить контакт\n");
-        printf("4. Сохранить контакты в файл\n");
-        printf("5. Загрузить контакты из файла\n");
-        printf("6. Вывести все контакты\n"); // Новая опция
-        printf("7. Выход\n");               // Сдвинули выход на 7
-        printf("Выберите действие: ");
+        printf("\nРњРµРЅСЋ:\n");
+        printf("1. Р”РѕР±Р°РІРёС‚СЊ РєРѕРЅС‚Р°РєС‚\n");
+        printf("2. Р РµРґР°РєС‚РёСЂРѕРІР°С‚СЊ РєРѕРЅС‚Р°РєС‚\n");
+        printf("3. РЈРґР°Р»РёС‚СЊ РєРѕРЅС‚Р°РєС‚\n");
+        printf("4. РЎРѕС…СЂР°РЅРёС‚СЊ РєРѕРЅС‚Р°РєС‚С‹ РІ С„Р°Р№Р»\n");
+        printf("5. Р—Р°РіСЂСѓР·РёС‚СЊ РєРѕРЅС‚Р°РєС‚С‹ РёР· С„Р°Р№Р»Р°\n");
+        printf("6. Р’С‹РІРµСЃС‚Рё РІСЃРµ РєРѕРЅС‚Р°РєС‚С‹\n"); // РќРѕРІР°СЏ РѕРїС†РёСЏ
+        printf("7. Р’С‹С…РѕРґ\n");               // РЎРґРІРёРЅСѓР»Рё РІС‹С…РѕРґ РЅР° 7
+        printf("Р’С‹Р±РµСЂРёС‚Рµ РґРµР№СЃС‚РІРёРµ: ");
 
         int choice;
         scanf("%d", &choice);
-        getchar(); // Удаляем символ переноса строки
+        getchar(); // РЈРґР°Р»СЏРµРј СЃРёРјРІРѕР» РїРµСЂРµРЅРѕСЃР° СЃС‚СЂРѕРєРё
 
         switch (choice) {
             case 1:
@@ -38,7 +33,7 @@ int main() {
                 break;
             case 2: {
                 unsigned int id;
-                printf("Введите ID контакта для редактирования: ");
+                printf("Р’РІРµРґРёС‚Рµ ID РєРѕРЅС‚Р°РєС‚Р° РґР»СЏ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ: ");
                 scanf("%u", &id);
                 getchar();
                 edit_contact(contacts, contact_count, id);
@@ -46,7 +41,7 @@ int main() {
             }
             case 3: {
                 unsigned int id;
-                printf("Введите ID контакта для удаления: ");
+                printf("Р’РІРµРґРёС‚Рµ ID РєРѕРЅС‚Р°РєС‚Р° РґР»СЏ СѓРґР°Р»РµРЅРёСЏ: ");
                 scanf("%u", &id);
                 getchar();
                 delete_contact(&contacts, &contact_count, id);
@@ -58,15 +53,15 @@ int main() {
             case 5:
                 load_from_file(&contacts, &contact_count, filename);
                 break;
-            case 6: // Новая опция
+            case 6: // РќРѕРІР°СЏ РѕРїС†РёСЏ
                 print_contacts(contacts, contact_count);
                 break;
-            case 7: // Выход теперь 7
+            case 7: // Р’С‹С…РѕРґ С‚РµРїРµСЂСЊ 7
                 free_contacts(contacts, contact_count);
-                printf("Выход из программы.\n");
+                printf("Р’С‹С…РѕРґ РёР· РїСЂРѕРіСЂР°РјРјС‹.\n");
                 return 0;
             default:
-                printf("Неверный выбор, попробуйте снова.\n");
+                printf("РќРµРІРµСЂРЅС‹Р№ РІС‹Р±РѕСЂ, РїРѕРїСЂРѕР±СѓР№С‚Рµ СЃРЅРѕРІР°.\n");
         }
     }
     return 0;

@@ -3,7 +3,7 @@
 
 #include <stddef.h>
 
-// Структура для дополнительных данных контакта
+// РЎС‚СЂСѓРєС‚СѓСЂР° РґР»СЏ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹С… РґР°РЅРЅС‹С… РєРѕРЅС‚Р°РєС‚Р°
 typedef struct {
     char* phone;
     char* email;
@@ -11,14 +11,14 @@ typedef struct {
     char* messenger_profile;
 } ContactDetails;
 
-// Структура для ФИО
+// РЎС‚СЂСѓРєС‚СѓСЂР° РґР»СЏ Р¤РРћ
 typedef struct {
-    char* last_name;   // (обязательное поле)
-    char* first_name;  // (обязательное поле)
-    char* middle_name; // (опционально)
+    char* last_name;   // (РѕР±СЏР·Р°С‚РµР»СЊРЅРѕРµ РїРѕР»Рµ)
+    char* first_name;  // (РѕР±СЏР·Р°С‚РµР»СЊРЅРѕРµ РїРѕР»Рµ)
+    char* middle_name; // (РѕРїС†РёРѕРЅР°Р»СЊРЅРѕ)
 } FullName;
 
-// Основная структура контакта
+// РћСЃРЅРѕРІРЅР°СЏ СЃС‚СЂСѓРєС‚СѓСЂР° РєРѕРЅС‚Р°РєС‚Р°
 typedef struct {
     FullName name;
     char* workplace;
