@@ -1,16 +1,22 @@
 ﻿### C template
 # Prerequisites
 *.d
+#txt
+*.txt
 # Исключение папки настроек CLion
 .idea/
 
-# Исключение папки сборки CMake
+# Исключение временных файлов CMake
 cmake-build-debug/
+CMakeFiles/
+cmake_install.cmake
+CMakeList.txt
 # Object files
 *.o
 *.ko
 *.obj
 *.elf
+*.exe
 
 # Linker output
 *.ilk

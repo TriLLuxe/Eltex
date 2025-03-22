@@ -8,7 +8,7 @@ int main() {
 
     Contact* contacts = NULL;
     unsigned int contact_count = 0;
-    const char* filename = "contacts.csv";
+    const char* filename = "contacts.txt";
 
     load_from_file(&contacts, &contact_count, filename);
 
