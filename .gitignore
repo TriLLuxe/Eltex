@@ -3,6 +3,8 @@
 *.d
 #txt
 *.txt
+#.vscode
+.vscode/
 # Исключение папки настроек CLion
 .idea/
 
