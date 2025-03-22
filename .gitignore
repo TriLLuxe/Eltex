@@ -17,6 +17,8 @@ CMakeLists.txt
 *.obj
 *.elf
 *.exe
+2_1
+2_2
 
 # Linker output
 *.ilk
