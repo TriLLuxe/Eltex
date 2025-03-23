@@ -1,7 +1,7 @@
 #ifndef HEADER_H
 #define HEADER_H
-double add(int count, ...);
-double subtract(int count, ...);
-double multiply(int count, ...);
-double divide(int count, ...);
+int add(int count,double *result, ...);
+int subtract(int count,double *result, ...);
+int multiply(int count,double *result, ...);
+int divide(int count,double *result, ...);
 #endif

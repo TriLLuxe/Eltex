@@ -13,6 +13,7 @@ cmake-build-debug/
 CMakeFiles/
 cmake_install.cmake
 CMakeLists.txt
+.cmake/
 # Object files
 *.o
 *.ko
@@ -65,4 +66,3 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
-
