@@ -23,6 +23,10 @@ CMakeLists.txt
 2_1
 2_2
 2_3
+3_*
+4_*
+5_*
+6_*
 # Linker output
 *.ilk
 *.map
