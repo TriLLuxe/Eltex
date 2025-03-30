@@ -1,38 +1,56 @@
+# Makefile
 CC = gcc
 CFLAGS = -Wall -g
 LDFLAGS = -ldl
-
-# Имена файлов
 TARGET = 6_3
-LIB = libcalc.so
-OBJECTS = add.o subtract.o multiply.o divide.o
+LIB_DIR = libs
+LIB_ADD = $(LIB_DIR)/libadd.so
+LIB_SUB = $(LIB_DIR)/libsubtract.so
+LIB_MUL = $(LIB_DIR)/libmultiply.so
+LIB_DIV = $(LIB_DIR)/libdivide.so
 
-# Основная цель
-all: $(TARGET)
+all: $(TARGET) $(LIB_ADD) $(LIB_SUB) $(LIB_MUL) $(LIB_DIV)
 
 # Сборка основной программы
-$(TARGET): main.o $(LIB)
-	$(CC) -o $(TARGET) main.o $(LDFLAGS)
+$(TARGET): main.o
+	$(CC) main.o $(LDFLAGS) -o $(TARGET)
 
-main.o: main.c
-	$(CC) $(CFLAGS) -c main.c
+main.o: main.c header.h
+	$(CC) $(CFLAGS) -c main.c -o main.o
 
-# Сборка динамической библиотеки
-$(LIB): $(OBJECTS)
-	$(CC) -shared -o $(LIB) $(OBJECTS)
+# Создание директории libs 
+$(LIB_DIR):
+	mkdir -p $(LIB_DIR)
 
-# Компиляция отдельных операций
-add.o: add.c
+# Сборка динамических библиотек с зависимостью от $(LIB_DIR)
+$(LIB_ADD): add.o | $(LIB_DIR)
+	$(CC) -shared -o $(LIB_ADD) add.o
+
+$(LIB_SUB): subtract.o | $(LIB_DIR)
+	$(CC) -shared -o $(LIB_SUB) subtract.o
+
+$(LIB_MUL): multiply.o | $(LIB_DIR)
+	$(CC) -shared -o $(LIB_MUL) multiply.o
+
+$(LIB_DIV): divide.o | $(LIB_DIR)
+	$(CC) -shared -o $(LIB_DIV) divide.o
+
+# Компиляция объектных файлов для библиотек
+add.o: add.c header.h
 	$(CC) $(CFLAGS) -fPIC -c add.c -o add.o
 
-subtract.o: subtract.c
+subtract.o: subtract.c header.h
 	$(CC) $(CFLAGS) -fPIC -c subtract.c -o subtract.o
 
-multiply.o: multiply.c
+multiply.o: multiply.c header.h
 	$(CC) $(CFLAGS) -fPIC -c multiply.c -o multiply.o
 
-divide.o: divide.c
+divide.o: divide.c header.h
 	$(CC) $(CFLAGS) -fPIC -c divide.c -o divide.o
+
 # Очистка
 clean:
-	rm -f *.o $(TARGET) $(LIB)
+	rm -f $(TARGET) *.o $(LIB_DIR)/*.so
+	rmdir $(LIB_DIR)
+
+rebuild: clean all
