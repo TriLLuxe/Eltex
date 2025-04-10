@@ -114,7 +114,7 @@ AVLNode* delete_node(AVLNode* root, const char* last_name, const char* first_nam
             // Случай: два дочерних узла
             AVLNode* temp = find_min(root->right); // Находим минимальный узел в правом поддереве
             free_contact(&root->contact);          // Освобождаем текущий контакт
-            copy_contact(&root->contact, &temp->contact); // Глубокое копирование данных
+            copy_contact(&root->contact, &temp->contact); 
             root->right = delete_node(root->right, temp->contact.name.last_name,
                                       temp->contact.name.first_name); // Удаляем минимальный узел
         }
