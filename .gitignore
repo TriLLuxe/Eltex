@@ -27,7 +27,10 @@ CMakeLists.txt
 4_*
 5_*
 6_*
-*[!.]*
+square_areas
+sum
+concat
+shell
 # Linker output
 *.ilk
 *.map
