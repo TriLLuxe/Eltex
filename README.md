@@ -35,7 +35,7 @@
 >> [task 6.2](https://github.com/TriLLuxe/Eltex/tree/main/module2/6/6.2 "Путь к директории в репозитории")  
 >> [task 6.3](https://github.com/TriLLuxe/Eltex/tree/main/module2/6/6.3 "Путь к директории в репозитории")
 
-## Module 2 - Objective C:
+## Module 3 - IPC:
 >> [task 01](https://github.com/TriLLuxe/Eltex/tree/main/module3/01 "Путь к директории в репозитории")
 >>[task 02](https://github.com/TriLLuxe/Eltex/tree/main/module3/02 "Путь к директории в репозитории") 
 
