@@ -27,6 +27,7 @@ CMakeLists.txt
 4_*
 5_*
 6_*
+*[!.]*
 # Linker output
 *.ilk
 *.map
