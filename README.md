@@ -38,4 +38,4 @@
 ## Module 3 - IPC:
 > [task 01](https://github.com/TriLLuxe/Eltex/tree/main/module3/01 "Путь к директории в репозитории")  
 > [task 02](https://github.com/TriLLuxe/Eltex/tree/main/module3/02 "Путь к директории в репозитории") 
-
+> [task 03](https://github.com/TriLLuxe/Eltex/tree/main/module3/03 "Путь к директории в репозитории") 
