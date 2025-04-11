@@ -348,16 +348,11 @@ int save_to_file(const AVLNode* root, const char* filename) {
     return 0;
 }
 
-#include <unistd.h>
-#include <fcntl.h>
-#include <string.h>
-#include <errno.h>
-
 int load_from_file(AVLNode** root, const char* filename) {
     int fd = open(filename, O_RDONLY);
     if (fd == -1) {
         if (errno == ENOENT) {
-            return 0; // ENOENT - Файл не существует
+            return 1; // ENOENT - Файл не существует
         }
         perror("Ошибка открытия файла для чтения");
         return -1;

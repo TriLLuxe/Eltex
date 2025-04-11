@@ -24,8 +24,11 @@ int main() {
     AVLNode* root = NULL;
     const char* filename = "contacts.txt";
 
-    if (load_from_file(&root, filename) != 0) {
+    int result = load_from_file(&root, filename);
+    if (result == 1) {
         printf("Файл %s не найден, начинаем с пустого списка.\n", filename);
+    } else if (result != 0) {
+        printf("Ошибка загрузки контактов из файла %s.\n", filename);
     }
 
     while (1) {
