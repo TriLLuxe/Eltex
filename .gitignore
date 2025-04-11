@@ -28,6 +28,7 @@ CMakeLists.txt
 5_*
 6_*
 square_areas
+ContactManager
 sum
 concat
 shell
