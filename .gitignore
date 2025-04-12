@@ -27,6 +27,7 @@ CMakeLists.txt
 4_*
 5_*
 6_*
+random_gen_pipe
 square_areas
 ContactManager
 sum
