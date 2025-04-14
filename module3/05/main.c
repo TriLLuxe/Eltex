@@ -43,33 +43,31 @@ int main(int argc, char *argv[]) {
             signal(SIGUSR2, handle_sigusr2);
             srand(time(NULL));
             for (int i = 0; i < num_numbers; i++) {
-                printf("Дочерний процесс итерации %d\n", i);
+                
+               
+                // Читаем файл
+                if (file_locked) {
+                    
+                    FILE *file = fopen(FILENAME, "r");
+                    if (file) {
+                        int number;
+                        printf("Дочерний процесс читает файл:\n");
+                        while (fscanf(file, "%d", &number) == 1) {
+                            printf("%d\n", number);
+                        }
+                        fclose(file);
+                    } else {
+                        perror("Ошибка открытия файла в дочернем процессе");
+                    }
+                }
                 // Генерируем и отправляем число
                 int random_number = rand() % 100;
-                printf("Дочерний процесс генерирует: %d\n", random_number);
                 if (write(fd[1], &random_number, sizeof(random_number)) == -1) {
                     perror("Ошибка записи в канал");
                     close(fd[1]);
                     exit(1);
                 }
-                // Ждем SIGUSR2 перед чтением файла
-                while (file_locked) {
-                    printf("Дочерний процесс ждет разрешения на чтение файла...\n");
-                    pause(); // Блокируем до получения сигнала
-                }
-                // Читаем файл
-                FILE *file = fopen(FILENAME, "r");
-                if (file) {
-                    int number;
-                    printf("Дочерний процесс читает файл:\n");
-                    while (fscanf(file, "%d", &number) == 1) {
-                        printf("%d\n", number);
-                    }
-                    fclose(file);
-                } else {
-                    perror("Ошибка открытия файла в дочернем процессе");
-                }
-               file_locked = 1; 
+                
             }
             close(fd[1]);
             exit(0);
@@ -87,15 +85,12 @@ int main(int argc, char *argv[]) {
             int random_number;
             for (int i = 0; i < num_numbers; i++) {
                 
-                printf("Родитель итерации %d\n", i);
-                printf("Родитель ждет число от дочернего процесса...\n");
                 if (read(fd[0], &random_number, sizeof(random_number)) == -1) {
                     perror("Ошибка чтения из канала");
                     close(fd[0]);
                     return 1;
                 }
                 // Блокируем доступ к файлу
-                printf("Родитель отправляет SIGUSR1\n");
                 kill(pid, SIGUSR1);
                 // Записываем число в файл
                 file = fopen(FILENAME, "a");
@@ -108,7 +103,6 @@ int main(int argc, char *argv[]) {
                 fprintf(file, "%d\n", random_number);
                 fclose(file);
                 // Разрешаем дочернему процессу читать
-                printf("Родитель отправляет SIGUSR2\n");
                 kill(pid, SIGUSR2);
             }
             close(fd[0]);
