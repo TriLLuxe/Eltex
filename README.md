@@ -41,3 +41,5 @@
 - [task 03](https://github.com/TriLLuxe/Eltex/tree/main/module3/03 "Путь к директории в репозитории")
 - [task 04](https://github.com/TriLLuxe/Eltex/tree/main/module3/04 "Путь к директории в репозитории")
 - [task 05](https://github.com/TriLLuxe/Eltex/tree/main/module3/05 "Путь к директории в репозитории")
+- [task 06](https://github.com/TriLLuxe/Eltex/tree/main/module3/06 "Путь к директории в репозитории")
+- [task 07](https://github.com/TriLLuxe/Eltex/tree/main/module3/07 "Путь к директории в репозитории")
