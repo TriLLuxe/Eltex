@@ -78,8 +78,4 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
-module3/06/chat2
-module3/06/chat1
-module3/07/chat1_posix
-module3/07/chat1_posix
-module3/07/chat2_posix
+
