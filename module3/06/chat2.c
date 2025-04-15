@@ -8,8 +8,8 @@ int main() {
         exit(1);
     }
 
-    chat(msgid, 2, 1); /* Отправка с mtype=2, получение с mtype=1 */
-
+    chat(msgid, MTYPE_2, MTYPE_1); /* Отправка с mtype=2, получение с mtype=1 */
+    sleep(1); 
     printf("Чат завершен.\n");
     return 0;
 }

@@ -6,7 +6,8 @@ int main() {
         perror("msgget");
         exit(1);
     }
-    chat(msgid, 1, 2);
+    chat(msgid, MTYPE_1, MTYPE_2);
+    sleep(1);
     if (msgctl(msgid, IPC_RMID, NULL) == -1) {
         perror("msgctl");
         exit(1);

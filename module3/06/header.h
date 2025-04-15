@@ -8,7 +8,9 @@
 
 #define MSG_KEY 1234
 #define MAX_TEXT 512
-
+#define MTYPE_1 1
+#define MTYPE_2 2
+#define MTYPE_EXIT 10
 struct msgbuf {
     long mtype;
     char mtext[MAX_TEXT];
