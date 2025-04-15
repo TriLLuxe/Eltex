@@ -27,6 +27,8 @@ CMakeLists.txt
 4_*
 5_*
 6_*
+chat*
+chat*_posix
 random_gen_pipe
 square_areas
 ContactManager
@@ -78,3 +80,6 @@ Mkfile.old
 dkms.conf
 module3/06/chat2
 module3/06/chat1
+module3/07/chat1_posix
+module3/07/chat1_posix
+module3/07/chat2_posix

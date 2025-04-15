@@ -1,13 +1,10 @@
 #include "header.h"
 
 int main() {
-    /* Настройка атрибутов очереди */
-    struct mq_attr attr = {
-        .mq_msgsize = MAX_TEXT,
-    };
+   
 
     /* Создание или открытие очереди */
-    mqd_t mq = mq_open(QUEUE_NAME, O_CREAT | O_RDWR, 0666, &attr);
+    mqd_t mq = mq_open(QUEUE_NAME, O_CREAT | O_RDWR, 0666);
     if (mq == (mqd_t)-1) {
         perror("mq_open");
         exit(1);
