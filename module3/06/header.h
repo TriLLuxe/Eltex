@@ -1,3 +1,5 @@
+#ifndef HEADER_H
+#define HEADER_H
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,3 +15,4 @@ struct msgbuf {
 };
 /* Функция обмена сообщениями */
 void chat(int msgid, int sender_type, int peer_type);
+#endif
