@@ -35,7 +35,7 @@ void chat(int msgid, int my_type, int peer_type) {
             perror("fgets");
             exit(1);
         }
-        msg.mtext[strcspn(msg.mtext, "\n")] = 0; 
+        msg.mtext[strcspn(msg.mtext, "\n")] = '\0'; 
 
         /* MTYPE_EXIT для "exit" или "q", иначе my_type */
         msg.mtype = (strcmp(msg.mtext, "exit") == 0 || strcmp(msg.mtext, "q") == 0) ? MTYPE_EXIT : my_type;
