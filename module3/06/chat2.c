@@ -2,7 +2,8 @@
 
 int main() {
     /* Подключение к существующей очереди */
-    int msgid = msgget(MSG_KEY, 0666);
+    key_t key = ftok(".", 'a');
+    int msgid = msgget(key, 0666);
     if (msgid == -1) {
         perror("msgget");
         exit(1);

@@ -5,8 +5,6 @@
 #include <string.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
-
-#define MSG_KEY 1234
 #define MAX_TEXT 512
 #define MTYPE_1 1
 #define MTYPE_2 2

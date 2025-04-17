@@ -1,6 +1,5 @@
 #include "semaphore.h"
 #define FILENAME "random_numbers.txt"
-#define SEM_KEY 1234
 #define NUM_READERS 3
 
 int main(int argc, char *argv[]) {
@@ -19,8 +18,8 @@ int main(int argc, char *argv[]) {
         perror("Ошибка создания канала");
         return 1;
     }
-    
-    int sem_id = semget(SEM_KEY, 2, IPC_CREAT | 0666);
+    key_t key = ftok(".",'a');
+    int sem_id = semget(key, 2, IPC_CREAT | 0666);
     if (sem_id == -1) {
         perror("Ошибка создания семафора");
         return 1;
@@ -57,7 +56,7 @@ int main(int argc, char *argv[]) {
             int numbers_to_generate = base + (i < remainder ? 1 : 0);
             for (int j = 0; j < num_numbers; j++) {
                 
-                sem_unlock(sem_id,1); //Увеличение активных читателей
+                sem_increase(sem_id,1); //Увеличение активных читателей
                 if (semctl(sem_id, 1, GETVAL) == 1) {
                     sem_lock(sem_id, 0); //  Первый читатель блокирует запись
                 }

@@ -11,8 +11,8 @@ void sem_lock(int sem_id) {
 }
 
 void sem_unlock(int sem_id) {
-    struct sembuf op = {0, 1, 0};
-    if (semop(sem_id, &op, 1) == -1) {
+    struct sembuf op[2] = {{0,0,0},{0, 1, 0}};
+    if (semop(sem_id, op, 2) == -1) {
         perror("Ошибка разблокировки семафора");
         exit(1);
     }

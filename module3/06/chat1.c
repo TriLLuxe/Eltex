@@ -1,7 +1,8 @@
 #include "header.h"
 
 int main() {
-    int msgid = msgget(MSG_KEY, IPC_CREAT | 0666);
+    key_t key = ftok(".", 'a');
+    int msgid = msgget(key, IPC_CREAT | 0666);
     if (msgid == -1) {
         perror("msgget");
         exit(1);

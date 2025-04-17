@@ -1,6 +1,6 @@
 #include "semaphore.h"
 #define FILENAME "random_numbers.txt"
-#define SEM_KEY 1234
+
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
@@ -20,7 +20,8 @@ int main(int argc, char *argv[]) {
     }
 
     // Создание семафора
-    int sem_id = semget(SEM_KEY, 1, IPC_CREAT | 0666);
+    key_t key = ftok(".",'a');
+    int sem_id = semget(key, 1, IPC_CREAT | 0666);
     if (sem_id == -1) {
         perror("Ошибка создания семафора");
         return 1;
