@@ -1,4 +1,11 @@
-#include "semaphore.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <time.h>
+#include <fcntl.h>
+#include <semaphore.h>
 #define FILENAME "random_numbers.txt"
 
 
@@ -19,17 +26,14 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    // Создание семафора
-    key_t key = ftok(".",'a');
-    int sem_id = semget(key, 1, IPC_CREAT | 0666);
-    if (sem_id == -1) {
+    // Создание семафора POSIX
+    sem_t *wrt_sem = sem_open("/wrt_sem", O_CREAT | O_EXCL, 0644, 1);
+
+    if (wrt_sem == SEM_FAILED) {
         perror("Ошибка создания семафора");
         return 1;
     }
-    if (semctl(sem_id, 0, SETVAL, 1) == -1) {
-        perror("Ошибка инициализации семафора");
-        return 1;
-    }
+
 
     pid_t pid = fork();
     switch (pid) {
@@ -40,7 +44,7 @@ int main(int argc, char *argv[]) {
             close(fd[0]);
             srand(time(NULL));
             for (int i = 0; i < num_numbers; i++) {
-                sem_lock(sem_id);
+                sem_wait(wrt_sem); // Блокируем писателя
                 FILE *file = fopen(FILENAME, "r");
                 if (file) {
                     int number;
@@ -52,7 +56,7 @@ int main(int argc, char *argv[]) {
                 } else {
                     perror("Ошибка открытия файла в дочернем процессе");
                 }
-                sem_unlock(sem_id);
+                sem_post(wrt_sem); // Разблокируем писателя
 
                 int random_number = rand() % 100;
                 if (write(fd[1], &random_number, sizeof(random_number)) == -1) {
@@ -80,7 +84,7 @@ int main(int argc, char *argv[]) {
                     close(fd[0]);
                     return 1;
                 }
-                sem_lock(sem_id);
+                sem_wait(wrt_sem); // Блокируем писателя
                 file = fopen(FILENAME, "a");
                 if (!file) {
                     perror("Ошибка открытия файла");
@@ -90,14 +94,13 @@ int main(int argc, char *argv[]) {
                 printf("Родитель записывает: %d\n", random_number);
                 fprintf(file, "%d\n", random_number);
                 fclose(file);
-                sem_unlock(sem_id);
+                sem_post(wrt_sem); // Разблокируем писателя
             }
             close(fd[0]);
             wait(NULL);
 
-            if (semctl(sem_id, 0, IPC_RMID) == -1) {
-                perror("Ошибка удаления семафора");
-            }
+            sem_close(wrt_sem); // Закрываем семафор
+            sem_unlink("/wrt_sem"); // Удаляем семафор
     }
     return 0;
 }
