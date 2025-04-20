@@ -7,7 +7,6 @@
 #include <sys/sem.h>
 #include <signal.h>
 #include <time.h>
-#include "semaphore.h"
 #define MAX_NUMBERS 10
 
 // Структура для разделяемой памяти
