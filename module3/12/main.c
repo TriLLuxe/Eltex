@@ -96,7 +96,6 @@ int main(int argc, char *argv[]) {
         case 0: // Дочерний процесс
             while(running) {
                 sem_lock(sem_id,0);// Ожидание от родителя
-                if(!running) break;
                 //Чтение набора чисел
                 int min = shared_data->numbers[0];
                 int max = shared_data->numbers[0];
@@ -127,7 +126,6 @@ int main(int argc, char *argv[]) {
             
             // Ждем на чтение 
             sem_lock(sem_id,1);
-            if(!running) break;
             //Вывод результатов
             printf("Набор %d: %d чисел, Минимальное: %d, Максимальное: %d\n",
                 shared_data->count + 1, shared_data->size, shared_data->min, shared_data->max);
