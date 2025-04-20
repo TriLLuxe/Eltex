@@ -29,13 +29,19 @@ void signal_handler(int sig) {
 }
 void clean() {
     if (shared_data != NULL) {
-        shmdt(shared_data);
+        if (shmdt(shared_data) == -1) {
+            perror("Ошибка отсоединения разделяемой памяти");
+        }
     }
     if (shm_id != -1) {
-        shmctl(shm_id, IPC_RMID, NULL);
+        if (shmctl(shm_id, IPC_RMID, NULL) == -1) {
+            perror("Ошибка удаления разделяемой памяти");
+        }
     }
     if (sem_id != -1) {
-        semctl(sem_id, 0, IPC_RMID);
+        if (semctl(sem_id, 0, IPC_RMID) == -1) {
+            perror("Ошибка удаления семафора");
+        }
     }
 }
 
