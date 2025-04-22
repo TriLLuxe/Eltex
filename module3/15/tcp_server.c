@@ -101,6 +101,7 @@ int main(int argc, char *argv[]) {
         error("ERROR on binding");
 
     printf("Listening on port %d...\n", portno);
+    printf("IP: %s\n", inet_ntoa(serv_addr.sin_addr));
     if (listen(sockfd, 5) < 0) error("ERROR on listen");
 
     clilen = sizeof(cli_addr);
