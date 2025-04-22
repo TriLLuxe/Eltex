@@ -12,8 +12,8 @@ int main(int argc, char **argv) {
     char sendline[1000], recvline[1000];
     struct sockaddr_in servaddr, cliaddr;
 
-    if (argc != 2) {
-        printf("Usage: a.out <IP address>\n");
+    if (argc != 3) {
+        printf("Usage: a.out <IP address> <Port>\n");
         exit(1);
     }
 
@@ -40,7 +40,16 @@ int main(int argc, char **argv) {
     servaddr.sin_family = AF_INET;
     printf("Введите порт сервера: ");
     uint16_t port;
-    scanf("%hu", &port);
+    if (sscanf(argv[2], "%hu", &port) != 1) {
+        printf("Invalid port number\n");
+        close(sockfd);
+        exit(1);
+    }
+    if (port < 1024 || port > 65535) {
+        printf("Port number must be between 1024 and 65535\n");
+        close(sockfd);
+        exit(1);
+    }
     servaddr.sin_port = htons(port);
     if (inet_aton(argv[1], &servaddr.sin_addr) == 0) {
         printf("Invalid IP address\n");

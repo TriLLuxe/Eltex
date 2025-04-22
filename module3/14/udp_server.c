@@ -62,6 +62,7 @@ int main() {
             printf("Клиент %s:%d зарегистрирован\n", inet_ntoa(sender_addr.sin_addr), ntohs(sender_addr.sin_port));
             continue;
         }
+        
         // отправляем ответ клиенту
         for (int i = 0; i < client_count; i++) {
             if (memcmp(&cliaddr[i], &sender_addr, sizeof(sender_addr)) != 0){
