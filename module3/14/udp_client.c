@@ -38,8 +38,12 @@ int main(int argc, char **argv) {
     // Настраиваем адрес сервера
     bzero(&servaddr, sizeof(servaddr));
     servaddr.sin_family = AF_INET;
-    
-    uint16_t port = 51000;
+    uint16_t port;
+    if (sscanf(argv[2], "%hu", &port) != 1) {
+        printf("Invalid port number\n");
+        close(sockfd);
+        exit(1);
+    }
     if (port < 1024 || port > 65535) {
         printf("Port number must be between 1024 and 65535\n");
         close(sockfd);
