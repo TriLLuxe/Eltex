@@ -54,7 +54,6 @@ double _div(double a, double b, int *status) {
     *status = 0;
     return a / b;
 }
-
 void list_files(int sock) {
     DIR *dir;
     struct dirent *entry;
@@ -91,90 +90,46 @@ void list_files(int sock) {
     }
     closedir(dir);
 }
-
-void upload_file(int sock, int *status) {
-    char buff[1024];
-    const char *str_file = "Enter filename for upload\r\n";
+void download_file(int sock, int *status){
+    char buffer[1024];
+    const char * str_file = "Enter filename to download:\r\n";
     *status = 0;
-    if (write(sock, str_file, strlen(str_file)) < 0) {
-        *status = 2;
-        return;
-    }
-    int bytes_recv = read(sock, buff, sizeof(buff) - 1);
-    if (bytes_recv <= 0) {
-        *status = 2;
-        return;
-    }
-    buff[bytes_recv] = '\0';
-    char *filename = buff;
-    filename[strcspn(filename, "\n")] = '\0';
 
-    // Create path in files/ directory
-    char filepath[2048];
-    snprintf(filepath, sizeof(filepath), "files/%s", filename);
-    FILE *file = fopen(filepath, "wb");
-    if (file == NULL) {
-        const char *err_msg = "ERROR: Cannot create file\n";
-        write(sock, err_msg, strlen(err_msg));
-        *status = 2;
-        return;
-    }
-    while (1) {
-        bytes_recv = read(sock, buff, sizeof(buff));
-        if (bytes_recv <= 0) {
-            fclose(file);
-            *status = 2;
-            return;
-        }
-        if (strncmp(buff, "EOF", 3) == 0) {
-            break;
-        }
-        fwrite(buff, 1, bytes_recv, file);
-    }
-    fclose(file);
-    const char *success_msg = "File uploaded successfully\n";
-    if (write(sock, success_msg, strlen(success_msg)) < 0) {
-        *status = 2;
-        return;
-    }
-    // List files in directory
-    list_files(-1); // Only print to server console
-}
-
-void download_file(int sock, int *status) {
-    char buff[1024];
-    const char *str_file = "Enter filename for download\r\n";
-    *status = 0;
-    // Send list of files to client
+    //Отправка списка файлов
     list_files(sock);
-    // Request filename
+    //Запрос имени файла
     if (write(sock, str_file, strlen(str_file)) < 0) {
         *status = 3;
         return;
     }
-    int bytes_recv = read(sock, buff, sizeof(buff) - 1);
+    //Получаем имя файла
+    int bytes_recv = read(sock, buffer, sizeof(buffer) - 1);
     if (bytes_recv <= 0) {
         *status = 3;
         return;
     }
-    buff[bytes_recv] = '\0';
-    char *filename = buff;
+    buffer[bytes_recv] = '\0';
+    char *filename = buffer;
     filename[strcspn(filename, "\n")] = '\0';
 
-    // Create path in files/ directory
     char filepath[2048];
     snprintf(filepath, sizeof(filepath), "files/%s", filename);
+
     FILE *file = fopen(filepath, "rb");
     if (file == NULL) {
-        const char *err_msg = "ERROR: File not found\n";
-        write(sock, err_msg, strlen(err_msg));
+        const char *err_msg = "ERROR: Cannot open file\r\n";
+        if(write(sock, err_msg, strlen(err_msg))<0){
+            *status = 3;
+            return;
+        }
         *status = 3;
         return;
     }
-    while (!feof(file)) {
-        int n = fread(buff, 1, sizeof(buff), file);
-        if (n > 0) {
-            if (write(sock, buff, n) < 0) {
+    //Отправка содержимого файла
+    while (!feof(file)){
+        int n = fread(buffer, 1, sizeof(buffer), file);
+        if (n > 0){
+            if (write(sock, buffer, n) < 0) {
                 fclose(file);
                 *status = 3;
                 return;
@@ -182,10 +137,63 @@ void download_file(int sock, int *status) {
         }
     }
     fclose(file);
+
+    //Отправка конца файла
     if (write(sock, "EOF", 3) < 0) {
         *status = 3;
+        return;
     }
 }
+void upload_file(int sock, int *status){
+    char buffer[1024];
+    const char *str_file = "Enter filename to upload:\r\n";
+    *status = 0;
+    //Запрос имени файла
+    if (write(sock, str_file, strlen(str_file)) < 0) {
+        *status = 2;
+        return;
+    }
+    //Получаем имя файла
+    int bytes_recv = read(sock, buffer, sizeof(buffer) - 1);
+    if (bytes_recv <= 0) {
+        *status = 2;
+        return;
+    }
+    buffer[bytes_recv] = '\0';
+    char *filename = buffer;
+    filename[strcspn(filename, "\n")] = '\0'; 
+
+    char filepath[2048];
+    snprintf(filepath, sizeof(filepath), "files/%s", filename);
+    //Открытие пути для записи
+    FILE *file = fopen(filepath, "wb");
+    if (file == NULL) {
+        const char *err_msg = "ERROR: Cannot create file\r\n";
+        if(write(sock, err_msg, strlen(err_msg))<0){
+            *status = 2;
+            return;
+        }
+        *status = 2;
+        return;
+    }
+    //Получаем данные файла
+    while(1){
+        bytes_recv = read(sock, buffer, sizeof(buffer) - 1);
+        if (bytes_recv <= 0) {
+            fclose(file);
+            *status = 2;
+            return;
+        }
+        if (strncmp(buffer, "EOF", 3) == 0) {
+            break;
+        }
+        fwrite(buffer, 1, bytes_recv, file);
+    }
+    fclose(file);
+}
+
+
+
 
 void disconnect(int sock) {
     close(sock);
@@ -381,6 +389,10 @@ void dostuff(int sock) {
                 printf("QUIT\n");
                 disconnect(sock);
                 return;
+            case 8:
+                printf("LIST\n");
+                list_files(sock);
+                break;
             default:
                 continue;
         }
