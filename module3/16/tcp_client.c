@@ -6,127 +6,10 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
-#include <errno.h>
 
 void error(const char *msg) {
     perror(msg);
     exit(1);
-}
-
-void upload_file(int sock) {
-    char buffer[1024];
-    int n = recv(sock, buffer, sizeof(buffer) - 1, 0);
-    if (n <= 0) {
-        printf("Server disconnected\n");
-        return;
-    }
-    buffer[n] = '\0';
-    printf("S=>C: %s", buffer);
-
-    // Ввод имени файла
-    printf("C=>S: ");
-    if (fgets(buffer, sizeof(buffer), stdin) == NULL) {
-        printf("Input error\n");
-        return;
-    }
-    buffer[strcspn(buffer, "\n")] = '\0';
-    char *filename = buffer;
-
-    // Открытие файла
-    FILE *file = fopen(filename, "rb");
-    if (file == NULL) {
-        printf("ERROR: Cannot open file %s\n", filename);
-        return;
-    }
-
-    // Отправка имени файла
-    if (send(sock, buffer, strlen(buffer), 0) < 0) {
-        fclose(file);
-        error("ERROR sending filename");
-    }
-
-    // Отправка содержимого файла
-    while (!feof(file)) {
-        int n = fread(buffer, 1, sizeof(buffer), file);
-        if (send(sock, buffer, n, 0) < 0) {
-            fclose(file);
-            error("ERROR sending file data");
-        }
-    }
-
-    // Отправка маркера конца файла
-    if (send(sock, "EOF", 3, 0) < 0) {
-        fclose(file);
-        error("ERROR sending EOF");
-    }
-    fclose(file);
-
-    // Получение подтверждения от сервера
-    n = recv(sock, buffer, sizeof(buffer) - 1, 0);
-    if (n > 0) {
-        buffer[n] = '\0';
-        printf("Server response: %s", buffer);
-    }
-}
-
-void download_file(int sock) {
-    char buffer[1024];
-    // Получение списка файлов и запроса имени файла
-    while (1) {
-        int n = recv(sock, buffer, sizeof(buffer) - 1, 0);
-        if (n <= 0) {
-            printf("Server disconnected\n");
-            return;
-        }
-        buffer[n] = '\0';
-        printf("S=>C: %s", buffer);
-        if (strstr(buffer, "Enter filename for download") != NULL) {
-            break;
-        }
-    }
-
-    // Ввод имени файла
-    printf("C=>S: ");
-    if (fgets(buffer, sizeof(buffer), stdin) == NULL) {
-        printf("Input error\n");
-        return;
-    }
-    buffer[strcspn(buffer, "\n")] = '\0';
-    char *filename = buffer;
-
-    // Отправка имени файла
-    if (send(sock, buffer, strlen(buffer), 0) < 0) {
-        error("ERROR sending filename");
-    }
-
-    // Создание файла для записи
-    FILE *file = fopen(filename, "wb");
-    if (file == NULL) {
-        printf("ERROR: Cannot create file %s\n", filename);
-        return;
-    }
-
-    // Получение данных файла
-    while (1) {
-        int n = recv(sock, buffer, sizeof(buffer), 0);
-        if (n <= 0) {
-            fclose(file);
-            printf("Server disconnected or error occurred\n");
-            return;
-        }
-        if (strncmp(buffer, "EOF", 3) == 0) {
-            break; // Конец передачи
-        }
-        if (strncmp(buffer, "ERROR:", 6) == 0) {
-            buffer[n] = '\0';
-            printf("Server response: %s", buffer);
-            fclose(file);
-            return;
-        }
-        fwrite(buffer, 1, n, file);
-    }
-    fclose(file);
-    printf("File %s downloaded successfully\n", filename);
 }
 
 int main(int argc, char *argv[]) {
@@ -134,6 +17,9 @@ int main(int argc, char *argv[]) {
     struct sockaddr_in serv_addr;
     struct hostent *server;
     char buff[1024];
+    char *current_filename = NULL;
+    FILE *current_file = NULL;
+    long current_file_size = 0;
 
     printf("TCP DEMO CLIENT\n");
 
@@ -174,25 +60,78 @@ int main(int argc, char *argv[]) {
         buff[n] = '\0';
         printf("S=>C: %s", buff);
 
-        printf("C=>S: ");
-        if (fgets(buff, sizeof(buff), stdin) == NULL) {
-            printf("Input error\n");
-            break;
-        }
-
-        if (send(my_sock, buff, strlen(buff), 0) < 0) {
-            error("ERROR sending to socket");
-        }
-
-        char *endptr;
-        errno = 0;
-        long operation = strtol(buff, &endptr, 10);
-        if (endptr != buff && *endptr == '\n' && errno == 0 && operation >= 1 && operation <= 7) {
-            if (operation == 5) {
-                upload_file(my_sock);
-            } else if (operation == 6) {
-                download_file(my_sock);
-            } else if (operation == 7) {
+        if (strcmp(buff, "Enter filename to upload:\n") == 0) {
+            printf("C=>S: ");
+            if (fgets(buff, sizeof(buff), stdin) == NULL) {
+                printf("Input error\n");
+                break;
+            }
+            current_filename = strdup(buff);
+            if (current_filename == NULL) {
+                error("Memory allocation error");
+            }
+            current_filename[strcspn(current_filename, "\n")] = 0;
+            current_file = fopen(current_filename, "rb");
+            if (current_file == NULL) {
+                const char *err_msg = "ERROR: Cannot open file\n";
+                if (send(my_sock, err_msg, strlen(err_msg), 0) < 0) {
+                    error("ERROR sending to socket");
+                }
+                free(current_filename);
+                current_filename = NULL;
+                continue;
+            }
+            fseek(current_file, 0, SEEK_END);
+            current_file_size = ftell(current_file);
+            fseek(current_file, 0, SEEK_SET);
+            if (send(my_sock, buff, strlen(buff), 0) < 0) {
+                error("ERROR sending to socket");
+            }
+        } else if (strcmp(buff, "Enter file size:\n") == 0) {
+            if (current_file == NULL) {
+                const char *err_msg = "ERROR: No file opened\n";
+                if (send(my_sock, err_msg, strlen(err_msg), 0) < 0) {
+                    error("ERROR sending to socket");
+                }
+                continue;
+            }
+            snprintf(buff, sizeof(buff), "%ld\n", current_file_size);
+            if (send(my_sock, buff, strlen(buff), 0) < 0) {
+                error("ERROR sending to socket");
+            }
+        } else if (strcmp(buff, "Send file content:\n") == 0) {
+            if (current_file == NULL) {
+                const char *err_msg = "ERROR: No file opened\n";
+                if (send(my_sock, err_msg, strlen(err_msg), 0) < 0) {
+                    error("ERROR sending to socket");
+                }
+                continue;
+            }
+            size_t total_sent = 0;
+            while (total_sent < current_file_size) {
+                size_t to_send = current_file_size - total_sent;
+                if (to_send > sizeof(buff)) to_send = sizeof(buff);
+                size_t bytes_read = fread(buff, 1, to_send, current_file);
+                if (bytes_read == 0) break;
+                if (send(my_sock, buff, bytes_read, 0) < 0) {
+                    error("ERROR sending to socket");
+                }
+                total_sent += bytes_read;
+            }
+            fclose(current_file);
+            current_file = NULL;
+            free(current_filename);
+            current_filename = NULL;
+        } else {
+            printf("C=>S: ");
+            if (fgets(buff, sizeof(buff), stdin) == NULL) {
+                printf("Input error\n");
+                break;
+            }
+            if (send(my_sock, buff, strlen(buff), 0) < 0) {
+                error("ERROR sending to socket");
+            }
+            if (strcmp(buff, "5\n") == 0) {
                 printf("Exiting...\n");
                 break;
             }

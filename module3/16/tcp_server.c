@@ -10,9 +10,6 @@
 #include <errno.h>
 #include <sys/wait.h>
 #include <signal.h>
-#include <fcntl.h>
-#include <dirent.h>
-#include <sys/stat.h>
 
 void dostuff(int);
 void error(const char *msg) {
@@ -34,17 +31,14 @@ double add(double a, double b, int *status) {
     *status = 0;
     return a + b;
 }
-
-double sub(double a, double b, int *status) {
+double sub(int a, int b, int *status) {
     *status = 0;
     return a - b;
 }
-
 double mul(double a, double b, int *status) {
     *status = 0;
     return a * b;
 }
-
 double _div(double a, double b, int *status) {
     if (b == 0) {
         fprintf(stderr, "ERROR: Division by zero\n");
@@ -54,151 +48,9 @@ double _div(double a, double b, int *status) {
     *status = 0;
     return a / b;
 }
-void list_files(int sock) {
-    DIR *dir;
-    struct dirent *entry;
-    char buff[1024];
-    dir = opendir("files");
-    if (dir == NULL) {
-        perror("ERROR opening directory files/");
-        if (sock != -1) {
-            snprintf(buff, sizeof(buff), "ERROR: Cannot open directory files/\r\n");
-            write(sock, buff, strlen(buff));
-        }
-        return;
-    }
-    printf("Files in directory 'files/':\n");
-    if (sock != -1) {
-        snprintf(buff, sizeof(buff), "Available files:\r\n");
-        write(sock, buff, strlen(buff));
-    }
-    while ((entry = readdir(dir)) != NULL) {
-        char filepath[2048];
-        snprintf(filepath, sizeof(filepath), "files/%s", entry->d_name);
-        struct stat file_stat;
-        if (stat(filepath, &file_stat) == 0 && S_ISREG(file_stat.st_mode)) { 
-            printf("- %s\n", entry->d_name);
-            if (sock != -1) {
-                snprintf(buff, sizeof(buff), "- %s\r\n", entry->d_name);
-                write(sock, buff, strlen(buff));
-            }
-        }
-    }
-    if (sock != -1) {
-        snprintf(buff, sizeof(buff), "End of file list\r\n");
-        write(sock, buff, strlen(buff));
-    }
-    closedir(dir);
-}
-void download_file(int sock, int *status){
-    char buffer[1024];
-    const char * str_file = "Enter filename to download:\r\n";
-    *status = 0;
-
-    //Отправка списка файлов
-    list_files(sock);
-    //Запрос имени файла
-    if (write(sock, str_file, strlen(str_file)) < 0) {
-        *status = 3;
-        return;
-    }
-    //Получаем имя файла
-    int bytes_recv = read(sock, buffer, sizeof(buffer) - 1);
-    if (bytes_recv <= 0) {
-        *status = 3;
-        return;
-    }
-    buffer[bytes_recv] = '\0';
-    char *filename = buffer;
-    filename[strcspn(filename, "\n")] = '\0';
-
-    char filepath[2048];
-    snprintf(filepath, sizeof(filepath), "files/%s", filename);
-
-    FILE *file = fopen(filepath, "rb");
-    if (file == NULL) {
-        const char *err_msg = "ERROR: Cannot open file\r\n";
-        if(write(sock, err_msg, strlen(err_msg))<0){
-            *status = 3;
-            return;
-        }
-        *status = 3;
-        return;
-    }
-    //Отправка содержимого файла
-    while (!feof(file)){
-        int n = fread(buffer, 1, sizeof(buffer), file);
-        if (n > 0){
-            if (write(sock, buffer, n) < 0) {
-                fclose(file);
-                *status = 3;
-                return;
-            }
-        }
-    }
-    fclose(file);
-
-    //Отправка конца файла
-    if (write(sock, "EOF", 3) < 0) {
-        *status = 3;
-        return;
-    }
-}
-void upload_file(int sock, int *status){
-    char buffer[1024];
-    const char *str_file = "Enter filename to upload:\r\n";
-    *status = 0;
-    //Запрос имени файла
-    if (write(sock, str_file, strlen(str_file)) < 0) {
-        *status = 2;
-        return;
-    }
-    //Получаем имя файла
-    int bytes_recv = read(sock, buffer, sizeof(buffer) - 1);
-    if (bytes_recv <= 0) {
-        *status = 2;
-        return;
-    }
-    buffer[bytes_recv] = '\0';
-    char *filename = buffer;
-    filename[strcspn(filename, "\n")] = '\0'; 
-
-    char filepath[2048];
-    snprintf(filepath, sizeof(filepath), "files/%s", filename);
-    //Открытие пути для записи
-    FILE *file = fopen(filepath, "wb");
-    if (file == NULL) {
-        const char *err_msg = "ERROR: Cannot create file\r\n";
-        if(write(sock, err_msg, strlen(err_msg))<0){
-            *status = 2;
-            return;
-        }
-        *status = 2;
-        return;
-    }
-    //Получаем данные файла
-    while(1){
-        bytes_recv = read(sock, buffer, sizeof(buffer) - 1);
-        if (bytes_recv <= 0) {
-            fclose(file);
-            *status = 2;
-            return;
-        }
-        if (strncmp(buffer, "EOF", 3) == 0) {
-            break;
-        }
-        fwrite(buffer, 1, bytes_recv, file);
-    }
-    fclose(file);
-}
-
-
-
-
 void disconnect(int sock) {
     close(sock);
 }
-
 void sigchld_handler(int sig) {
     while (waitpid(-1, NULL, WNOHANG) > 0) {
         nclients--;
@@ -207,16 +59,89 @@ void sigchld_handler(int sig) {
     }
 }
 
+void upload_file(int sock) {
+    char buff[1024];
+    char filename[256];
+    long file_size;
+    FILE *file;
+
+    // Request filename
+    const char *prompt_filename = "Enter filename to upload:\n";
+    if (write(sock, prompt_filename, strlen(prompt_filename)) < 0) {
+        disconnect(sock);
+        return;
+    }
+    int bytes_recv = read(sock, buff, sizeof(buff) - 1);
+    if (bytes_recv <= 0) {
+        disconnect(sock);
+        return;
+    }
+    buff[bytes_recv] = '\0';
+    strncpy(filename, buff, sizeof(filename) - 1);
+    char prefixed_filename[512]; 
+snprintf(prefixed_filename, sizeof(prefixed_filename), "files/%s", filename);
+    filename[sizeof(prefixed_filename) - 1] = '\0';
+    filename[strcspn(prefixed_filename, "\n")] = '\0';
+
+    // Request file size
+    const char *prompt_size = "Enter file size:\n";
+    if (write(sock, prompt_size, strlen(prompt_size)) < 0) {
+        disconnect(sock);
+        return;
+    }
+    bytes_recv = read(sock, buff, sizeof(buff) - 1);
+    if (bytes_recv <= 0) {
+        disconnect(sock);
+        return;
+    }
+    buff[bytes_recv] = '\0';
+    char *endptr;
+    file_size = strtol(buff, &endptr, 10);
+    if (endptr == buff || *endptr != '\n' || file_size <= 0) {
+        const char *err_msg = "ERROR: Invalid file size\n";
+        write(sock, err_msg, strlen(err_msg));
+        return;
+    }
+
+    
+    file = fopen(prefixed_filename, "wb");
+    if (file == NULL) {
+        const char *err_msg = "ERROR: Cannot open file for writing\n";
+        write(sock, err_msg, strlen(err_msg));
+        return;
+    }
+
+    // Request and receive file content
+    const char *prompt_content = "Send file content:\n";
+    if (write(sock, prompt_content, strlen(prompt_content)) < 0) {
+        fclose(file);
+        disconnect(sock);
+        return;
+    }
+    size_t total_received = 0;
+    while (total_received < file_size) {
+        bytes_recv = read(sock, buff, sizeof(buff));
+        if (bytes_recv <= 0) {
+            fclose(file);
+            disconnect(sock);
+            return;
+        }
+        fwrite(buff, 1, bytes_recv, file);
+        total_received += bytes_recv;
+    }
+    fclose(file);
+
+    // Send success message
+    const char *success_msg = "File uploaded successfully\n";
+    write(sock, success_msg, strlen(success_msg));
+}
+
 int main(int argc, char *argv[]) {
     int sockfd, newsockfd;
     int portno;
     int pid;
     socklen_t clilen;
     struct sockaddr_in serv_addr, cli_addr;
-
-    // Create files/ directory if it doesn't exist
-    mkdir("files", 0755);
-
     signal(SIGCHLD, sigchld_handler);
     printf("TCP SERVER DEMO\n");
 
@@ -251,6 +176,7 @@ int main(int argc, char *argv[]) {
         error("ERROR on binding");
 
     printf("Listening on port %d...\n", portno);
+    printf("IP: %s\n", inet_ntoa(serv_addr.sin_addr));
     if (listen(sockfd, 5) < 0) error("ERROR on listen");
 
     clilen = sizeof(cli_addr);
@@ -288,7 +214,9 @@ void dostuff(int sock) {
     int bytes_recv;
     double a, b;
     char buff[1024];
-    const char *str3 = "Choose operation:\r\n1. ADD\r\n2. SUB\r\n3. MUL\r\n4. DIV\r\n5. UPLOAD\r\n6. DOWNLOAD\r\n7. QUIT\r\n";
+    const char *str1 = "Enter 1 parameter\r\n";
+    const char *str2 = "Enter 2 parameter\r\n";
+    const char *str3 = "Choose operation:\r\n1. ADD\r\n2. SUB\r\n3. MUL\r\n4. DIV\r\n5. QUIT\r\n6. UPLOAD FILE\r\n";
 
     while (1) {
         if (write(sock, str3, strlen(str3)) < 0) {
@@ -302,11 +230,10 @@ void dostuff(int sock) {
             return;
         }
         buff[bytes_recv] = '\0';
-
         char *endptr;
         errno = 0;
         long operation = strtol(buff, &endptr, 10);
-        if (endptr == buff || *endptr != '\n' || errno != 0 || operation < 1 || operation > 7) {
+        if (endptr == buff || *endptr != '\n' || errno != 0 || operation < 1 || operation > 6) {
             const char *err_msg = "ERROR: Invalid operation\n";
             if (write(sock, err_msg, strlen(err_msg)) < 0) {
                 disconnect(sock);
@@ -317,7 +244,6 @@ void dostuff(int sock) {
 
         int status;
         if (operation >= 1 && operation <= 4) {
-            const char *str1 = "Enter 1 parameter\r\n";
             if (write(sock, str1, strlen(str1)) < 0) {
                 disconnect(sock);
                 return;
@@ -338,7 +264,6 @@ void dostuff(int sock) {
                 continue;
             }
 
-            const char *str2 = "Enter 2 parameter\r\n";
             if (write(sock, str2, strlen(str2)) < 0) {
                 disconnect(sock);
                 return;
@@ -378,49 +303,26 @@ void dostuff(int sock) {
                 a = _div(a, b, &status);
                 break;
             case 5:
-                printf("UPLOAD\n");
-                upload_file(sock, &status);
-                break;
-            case 6:
-                printf("DOWNLOAD\n");
-                download_file(sock, &status);
-                break;
-            case 7:
                 printf("QUIT\n");
                 disconnect(sock);
                 return;
-            case 8:
-                printf("LIST\n");
-                list_files(sock);
-                break;
+            case 6:
+                printf("UPLOAD FILE\n");
+                upload_file(sock);
+                continue;
             default:
                 continue;
         }
 
-        if (status == 1) {
-            const char *err_msg = "ERROR: Division by zero\n";
-            if (write(sock, err_msg, strlen(err_msg)) < 0) {
-                disconnect(sock);
-                return;
-            }
-            continue;
-        } else if (status == 2) {
-            const char *err_msg = "ERROR: File uploading failed\n";
-            if (write(sock, err_msg, strlen(err_msg)) < 0) {
-                disconnect(sock);
-                return;
-            }
-            continue;
-        } else if (status == 3) {
-            const char *err_msg = "ERROR: File downloading failed\n";
-            if (write(sock, err_msg, strlen(err_msg)) < 0) {
-                disconnect(sock);
-                return;
-            }
-            continue;
-        }
-
         if (operation >= 1 && operation <= 4) {
+            if (status == 1) {
+                const char *err_msg = "ERROR: Division by zero\n";
+                if (write(sock, err_msg, strlen(err_msg)) < 0) {
+                    disconnect(sock);
+                    return;
+                }
+                continue;
+            }
             snprintf(buff, sizeof(buff), "%.2f\n", a);
             if (write(sock, buff, strlen(buff)) < 0) {
                 disconnect(sock);
