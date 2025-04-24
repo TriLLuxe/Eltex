@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
         }
         buff[n] = '\0';
         printf("S=>C: %s", buff);
-
+        if (strncmp(buff, "Division by zero", 15) == 0) continue;;
         printf("C=>S: ");
         if (fgets(buff, sizeof(buff), stdin) == NULL) {
             printf("Input error\n");
@@ -65,11 +65,6 @@ int main(int argc, char *argv[]) {
 
         if (send(my_sock, buff, strlen(buff), 0) < 0) {
             error("ERROR sending to socket");
-        }
-
-        if (strcmp(buff, "5\n") == 0) {
-            printf("Exiting...\n");
-            break;
         }
     }
 
