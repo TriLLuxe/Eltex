@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
         }
         buff[n] = '\0';
         printf("S=>C: %s", buff);
-        if (strncmp(buff, "Division by zero", 15) == 0) continue;;
+        if (strncmp(buff, "Division by zero", 15) == 0) continue;
         printf("C=>S: ");
         if (fgets(buff, sizeof(buff), stdin) == NULL) {
             printf("Input error\n");
