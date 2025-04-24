@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
     if (shared_data == (void *)-1) {
         perror("Ошибка присоединения разделяемой памяти");
         clean();
-        exit(1);
+        exit(1); 
     }  
     shared_data->size = 0;
     shared_data->min = 0;
