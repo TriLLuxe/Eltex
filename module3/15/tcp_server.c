@@ -47,9 +47,6 @@ double _div(double a, double b, int *status) {
     *status = 0;
     return a / b;
 }
-void disconnect(int sock) {
-    close(sock);
-}
 void sigchld_handler(int sig) {
     // Обрабатываем завершение дочерних процессов
     while (waitpid(-1, NULL, WNOHANG) > 0) {
@@ -145,13 +142,13 @@ void dostuff(int sock) {
 
     while (1) {
         if (write(sock, str3, strlen(str3)) < 0) {
-            disconnect(sock);
+            close(sock);
             return;
         }
 
-        bytes_recv = read(sock, buff, sizeof(buff) - 1);
+        bytes_recv = read(sock, buff, sizeof(buff) - 1); // Получаем выбор операции
         if (bytes_recv <= 0) {
-            disconnect(sock);
+            close(sock);
             return;
         }
         buff[bytes_recv] = '\0';
@@ -161,7 +158,7 @@ void dostuff(int sock) {
         if (endptr == buff || *endptr != '\n' || errno != 0 || operation < 1 || operation > 5) {
             const char *err_msg = "ERROR: Invalid operation\n";
             if (write(sock, err_msg, strlen(err_msg)) < 0) {
-                disconnect(sock);
+                close(sock);
                 return;
             }
             continue;
@@ -170,12 +167,12 @@ void dostuff(int sock) {
         int status;
         if (operation >= 1 && operation <= 4) {
             if (write(sock, str1, strlen(str1)) < 0) {
-                disconnect(sock);
+                close(sock);
                 return;
             }
-            bytes_recv = read(sock, buff, sizeof(buff) - 1);
+            bytes_recv = read(sock, buff, sizeof(buff) - 1);// Получаем первый параметр
             if (bytes_recv <= 0) {
-                disconnect(sock);
+                close(sock);
                 return;
             }
             buff[bytes_recv] = '\0';
@@ -183,19 +180,19 @@ void dostuff(int sock) {
             if (endptr == buff || (*endptr != '\n' && *endptr != '\0')) {
                 const char *err_msg = "ERROR: Invalid first parameter\n";
                 if (write(sock, err_msg, strlen(err_msg)) < 0) {
-                    disconnect(sock);
+                    close(sock);
                     return;
                 }
                 continue;
             }
 
             if (write(sock, str2, strlen(str2)) < 0) {
-                disconnect(sock);
+                close(sock);
                 return;
             }
-            bytes_recv = read(sock, buff, sizeof(buff) - 1);
+            bytes_recv = read(sock, buff, sizeof(buff) - 1); // Получаем второй параметр
             if (bytes_recv <= 0) {
-                disconnect(sock);
+                close(sock);
                 return;
             }
             buff[bytes_recv] = '\0';
@@ -203,7 +200,7 @@ void dostuff(int sock) {
             if (endptr == buff || (*endptr != '\n' && *endptr != '\0')) {
                 const char *err_msg = "ERROR: Invalid second parameter\n";
                 if (write(sock, err_msg, strlen(err_msg)) < 0) {
-                    disconnect(sock);
+                    close(sock);
                     return;
                 }
                 continue;
@@ -229,7 +226,7 @@ void dostuff(int sock) {
                 break;
             case 5:
                 printf("QUIT\n");
-                disconnect(sock);
+                close(sock);
                 return;
             default:
                 continue; 
@@ -238,7 +235,7 @@ void dostuff(int sock) {
         if (status == 1) {
             const char *err_msg = "ERROR: Division by zero\n";
             if (write(sock, err_msg, strlen(err_msg)) < 0) {
-                disconnect(sock);
+                close(sock);
                 return;
             }
             continue;
@@ -246,7 +243,7 @@ void dostuff(int sock) {
 
         snprintf(buff, sizeof(buff), "%.2f\n", a);
         if (write(sock, buff, strlen(buff)) < 0) {
-            disconnect(sock);
+            close(sock);
             return;
         }
     }

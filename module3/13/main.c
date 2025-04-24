@@ -120,7 +120,7 @@ int main(int argc, char *argv[]) {
                 //sleep(1);
                 sem_post(sem_child); //Сигнализируем родителю о завершении обработки
             }
-            munmap(shared_data, sizeof(SharedData));
+            munmap(shared_data, sizeof(SharedData)); 
             exit(0);
 
         default:
