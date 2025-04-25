@@ -113,9 +113,9 @@ void dostuff(int sock) {
     int bytes_recv;
     double a, b;
     char buff[1024];
-    const char *str1 = "Enter 1 parameter\r\n";
-    const char *str2 = "Enter 2 parameter\r\n";
-    const char *str3 = "Choose operation:\r\n1. ADD\r\n2. SUB\r\n3. MUL\r\n4. DIV\r\n5. QUIT\r\n6. UPLOAD FILE\r\n";
+    const char *str1 = "Enter 1 parameter\n";
+    const char *str2 = "Enter 2 parameter\n";
+    const char *str3 = "Choose operation:\n1. ADD\n2. SUB\n3. MUL\n4. DIV\n5. QUIT\n6. UPLOAD FILE\n7. DOWNLOAD FILE\n";
 
     while (1) {
         if (write(sock, str3, strlen(str3)) < 0) {
@@ -132,7 +132,7 @@ void dostuff(int sock) {
         char *endptr;
         errno = 0;
         long operation = strtol(buff, &endptr, 10);
-        if (endptr == buff || *endptr != '\n' || errno != 0 || operation < 1 || operation > 6) {
+        if (endptr == buff || *endptr != '\n' || errno != 0 || operation < 1 || operation > 7) {
             const char *err_msg = "ERROR: Invalid operation\n";
             if (write(sock, err_msg, strlen(err_msg)) < 0) {
                 close(sock);
@@ -177,7 +177,7 @@ void dostuff(int sock) {
             if (endptr == buff || (*endptr != '\n' && *endptr != '\0')) {
                 const char *err_msg = "ERROR: Invalid second parameter\n";
                 if (write(sock, err_msg, strlen(err_msg)) < 0) {
-                close(sock);
+                    close(sock);
                     return;
                 }
                 continue;
@@ -186,28 +186,25 @@ void dostuff(int sock) {
 
         switch (operation) {
             case 1:
-                printf("ADD\n");
                 a = add(a, b, &status);
                 break;
             case 2:
-                printf("SUB\n");
                 a = sub(a, b, &status);
                 break;
             case 3:
-                printf("MUL\n");
                 a = mul(a, b, &status);
                 break;
             case 4:
-                printf("DIV\n");
                 a = _div(a, b, &status);
                 break;
             case 5:
-                printf("QUIT\n");
                 close(sock);
                 return;
             case 6:
-                printf("UPLOAD FILE\n");
                 upload_file(sock);
+                continue;
+            case 7:
+                download_file(sock);
                 continue;
             default:
                 continue;

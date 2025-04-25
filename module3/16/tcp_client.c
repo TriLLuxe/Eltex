@@ -6,14 +6,19 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <errno.h>
 #include "network_utils.h"
 #include "file_operations_client.h"
-
+void clear_input_buffer() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF) { }
+}
 int main(int argc, char *argv[]) {
     int my_sock, portno, n;
     struct sockaddr_in serv_addr;
     struct hostent *server;
     char buff[1024];
+    int menu_received = 0;
 
     printf("TCP DEMO CLIENT\n");
 
@@ -46,20 +51,34 @@ int main(int argc, char *argv[]) {
         error("ERROR connecting");
 
     while (1) {
-        n = recv(my_sock, buff, sizeof(buff) - 1, 0);
-        if (n <= 0) {
-            printf("Server disconnected\n");
-            break;
+        if (!menu_received) {
+            n = recv(my_sock, buff, sizeof(buff) - 1, 0);
+            if (n <= 0) {
+                printf("Server disconnected\n");
+                break;
+            }
+            buff[n] = '\0';
+            printf("S=>C: %s", buff);
+        } else {
+            menu_received = 0;
         }
-        buff[n] = '\0';
-        printf("S=>C: %s", buff);
 
-        if (strncmp(buff, "Division by zero", 15) == 0 || strcmp(buff, "File uploaded successfully\n") == 0) {
+        if (strncmp(buff, "Division by zero", 15) == 0 || 
+            strcmp(buff, "File uploaded successfully\n") == 0 || 
+            strcmp(buff, "File downloaded successfully\n") == 0) {
+            menu_received = 0;
             continue;
         }
 
         if (strcmp(buff, "Enter filename to upload:\n") == 0) {
             upload_file(my_sock, buff, sizeof(buff));
+            menu_received = 0;
+            continue;
+        }
+
+        if (strcmp(buff, "Enter filename to download:\n") == 0) {
+            download_file(my_sock, buff, sizeof(buff));
+            menu_received = 1;
             continue;
         }
 
