@@ -10,12 +10,12 @@
 #include <errno.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include "math_operations.h"
+#include "file_operations.h"
+#include "network_utils.h"
 
 void dostuff(int);
-void error(const char *msg) {
-    perror(msg);
-    exit(1);
-}
+void sigchld_handler(int sig);
 
 int nclients = 0;
 
@@ -27,113 +27,12 @@ void printusers() {
     }
 }
 
-double add(double a, double b, int *status) {
-    *status = 0;
-    return a + b;
-}
-double sub(int a, int b, int *status) {
-    *status = 0;
-    return a - b;
-}
-double mul(double a, double b, int *status) {
-    *status = 0;
-    return a * b;
-}
-double _div(double a, double b, int *status) {
-    if (b == 0) {
-        fprintf(stderr, "ERROR: Division by zero\n");
-        *status = 1;
-        return 0;
-    }
-    *status = 0;
-    return a / b;
-}
-void disconnect(int sock) {
-    close(sock);
-}
 void sigchld_handler(int sig) {
     while (waitpid(-1, NULL, WNOHANG) > 0) {
         nclients--;
         printf("-disconnect\n");
         printusers();
     }
-}
-
-void upload_file(int sock) {
-    char buff[1024];
-    char filename[256];
-    long file_size;
-    FILE *file;
-
-    // Request filename
-    const char *prompt_filename = "Enter filename to upload:\n";
-    if (write(sock, prompt_filename, strlen(prompt_filename)) < 0) {
-        disconnect(sock);
-        return;
-    }
-    int bytes_recv = read(sock, buff, sizeof(buff) - 1);
-    if (bytes_recv <= 0) {
-        disconnect(sock);
-        return;
-    }
-    buff[bytes_recv] = '\0';
-    strncpy(filename, buff, sizeof(filename) - 1);
-    char prefixed_filename[512]; 
-snprintf(prefixed_filename, sizeof(prefixed_filename), "files/%s", filename);
-    filename[sizeof(prefixed_filename) - 1] = '\0';
-    filename[strcspn(prefixed_filename, "\n")] = '\0';
-
-    // Request file size
-    const char *prompt_size = "Enter file size:\n";
-    if (write(sock, prompt_size, strlen(prompt_size)) < 0) {
-        disconnect(sock);
-        return;
-    }
-    bytes_recv = read(sock, buff, sizeof(buff) - 1);
-    if (bytes_recv <= 0) {
-        disconnect(sock);
-        return;
-    }
-    buff[bytes_recv] = '\0';
-    char *endptr;
-    file_size = strtol(buff, &endptr, 10);
-    if (endptr == buff || *endptr != '\n' || file_size <= 0) {
-        const char *err_msg = "ERROR: Invalid file size\n";
-        write(sock, err_msg, strlen(err_msg));
-        return;
-    }
-
-    
-    file = fopen(prefixed_filename, "wb");
-    if (file == NULL) {
-        const char *err_msg = "ERROR: Cannot open file for writing\n";
-        write(sock, err_msg, strlen(err_msg));
-        return;
-    }
-
-    // Request and receive file content
-    const char *prompt_content = "Send file content:\n";
-    if (write(sock, prompt_content, strlen(prompt_content)) < 0) {
-        fclose(file);
-        disconnect(sock);
-        return;
-    }
-    size_t total_received = 0;
-    while (total_received < file_size) {
-        bytes_recv = read(sock, buff, sizeof(buff));
-        if (bytes_recv <= 0) {
-            fclose(file);
-            disconnect(sock);
-            return;
-        }
-        fwrite(buff, 1, bytes_recv, file);
-        total_received += bytes_recv;
-    }
-    fclose(file);
-
-    // Send success message
-    const char *success_msg = "File uploaded successfully\n";
-    write(sock, success_msg, strlen(success_msg));
 }
 
 int main(int argc, char *argv[]) {
@@ -220,13 +119,13 @@ void dostuff(int sock) {
 
     while (1) {
         if (write(sock, str3, strlen(str3)) < 0) {
-            disconnect(sock);
+            close(sock);
             return;
         }
 
         bytes_recv = read(sock, buff, sizeof(buff) - 1);
         if (bytes_recv <= 0) {
-            disconnect(sock);
+            close(sock);
             return;
         }
         buff[bytes_recv] = '\0';
@@ -236,7 +135,7 @@ void dostuff(int sock) {
         if (endptr == buff || *endptr != '\n' || errno != 0 || operation < 1 || operation > 6) {
             const char *err_msg = "ERROR: Invalid operation\n";
             if (write(sock, err_msg, strlen(err_msg)) < 0) {
-                disconnect(sock);
+                close(sock);
                 return;
             }
             continue;
@@ -245,12 +144,12 @@ void dostuff(int sock) {
         int status;
         if (operation >= 1 && operation <= 4) {
             if (write(sock, str1, strlen(str1)) < 0) {
-                disconnect(sock);
+                close(sock);
                 return;
             }
             bytes_recv = read(sock, buff, sizeof(buff) - 1);
             if (bytes_recv <= 0) {
-                disconnect(sock);
+                close(sock);
                 return;
             }
             buff[bytes_recv] = '\0';
@@ -258,19 +157,19 @@ void dostuff(int sock) {
             if (endptr == buff || (*endptr != '\n' && *endptr != '\0')) {
                 const char *err_msg = "ERROR: Invalid first parameter\n";
                 if (write(sock, err_msg, strlen(err_msg)) < 0) {
-                    disconnect(sock);
+                    close(sock);
                     return;
                 }
                 continue;
             }
 
             if (write(sock, str2, strlen(str2)) < 0) {
-                disconnect(sock);
+                close(sock);
                 return;
             }
             bytes_recv = read(sock, buff, sizeof(buff) - 1);
             if (bytes_recv <= 0) {
-                disconnect(sock);
+                close(sock);
                 return;
             }
             buff[bytes_recv] = '\0';
@@ -278,7 +177,7 @@ void dostuff(int sock) {
             if (endptr == buff || (*endptr != '\n' && *endptr != '\0')) {
                 const char *err_msg = "ERROR: Invalid second parameter\n";
                 if (write(sock, err_msg, strlen(err_msg)) < 0) {
-                    disconnect(sock);
+                close(sock);
                     return;
                 }
                 continue;
@@ -304,7 +203,7 @@ void dostuff(int sock) {
                 break;
             case 5:
                 printf("QUIT\n");
-                disconnect(sock);
+                close(sock);
                 return;
             case 6:
                 printf("UPLOAD FILE\n");
@@ -318,14 +217,14 @@ void dostuff(int sock) {
             if (status == 1) {
                 const char *err_msg = "ERROR: Division by zero\n";
                 if (write(sock, err_msg, strlen(err_msg)) < 0) {
-                    disconnect(sock);
+                    close(sock);
                     return;
                 }
                 continue;
             }
             snprintf(buff, sizeof(buff), "%.2f\n", a);
             if (write(sock, buff, strlen(buff)) < 0) {
-                disconnect(sock);
+                close(sock);
                 return;
             }
         }
