@@ -50,5 +50,24 @@ void signal_handler(int sig){
 }
 
 int main (int argc, char *argv[]){
+    if (argc != 2){
+        fprintf(stderr, "Usage: %s <port>\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+    int port = atoi(argv[1]);
+    if (port <= 0 || port > 65535){
+        fprintf(stderr, "Invalid port number\n");
+        exit(EXIT_FAILURE);
+    }
+    //Установка обработчика сигнала
+    signal(SIGINT, signal_handler);
+    signal(SIGTERM, signal_handler);
+
+    //создание raw сокета
+    int sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_UDP);
+    if (sockfd < 0){
+        perror("socket");
+        exit(EXIT_FAILURE);
+    }
     
 }
