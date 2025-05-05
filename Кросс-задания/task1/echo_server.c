@@ -69,5 +69,14 @@ int main (int argc, char *argv[]){
         perror("socket");
         exit(EXIT_FAILURE);
     }
+
+    if (setsockopt(sockfd, IPPROTO_IP, IP_HDRINCL, &(int){1}, sizeof(int)) < 0){
+        perror("setsockopt");
+        close(sockfd);
+        exit(EXIT_FAILURE);
+    }
+    char buffer[65536];
+    struct sockaddr_in addr;
+    socklen_t addr_len = sizeof(addr);
     
 }
