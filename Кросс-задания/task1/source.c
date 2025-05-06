@@ -38,7 +38,7 @@ struct in_addr get_interface_ip() {
 
         if (ifa->ifa_addr->sa_family == AF_INET) {
             struct sockaddr_in *sa = (struct sockaddr_in *)ifa->ifa_addr;
-            if (strcmp(ifa->ifa_name, "lo") != 0) { // Исключаем loopback
+            if (strcmp(ifa->ifa_name, "lo") != 0) { //loopback exclude
                 ip = sa->sin_addr;
                 break;
             }
