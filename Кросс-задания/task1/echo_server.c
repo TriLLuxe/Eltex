@@ -199,7 +199,7 @@ int main(int argc, char* argv[]) {
     }
     
    
-    printf("exiting\n");
+    printf("\nexiting\n");
     close(sockfd);
     for (int i = 0; i < TABLE_SIZE; i++) {
         Node* current = hash_table[i];

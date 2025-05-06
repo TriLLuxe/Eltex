@@ -44,11 +44,8 @@ void send_packet(char* data, int data_len) {
     iph->check = 0;
     if (server_addr.sin_addr.s_addr == inet_addr("127.0.0.1")) {
         iph->saddr = inet_addr("127.0.0.1");
-        printf("DEBUG: Using 127.0.0.1 as source IP (local server)\n");
     } else {
         iph->saddr = get_interface_ip().s_addr;
-        printf("DEBUG: Using interface IP %s as source IP\n", 
-               inet_ntoa(*(struct in_addr*)&iph->saddr));
     }
     iph->daddr = server_addr.sin_addr.s_addr;
     iph->check = checksum(iph, sizeof(struct iphdr));
@@ -58,7 +55,6 @@ void send_packet(char* data, int data_len) {
     // Send packet
     if (sendto(sockfd, buffer, sizeof(struct iphdr) + sizeof(struct udphdr) + data_len,
                0, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) perror("sendto");
-    
 }
 
 // Signal handler
@@ -112,7 +108,7 @@ int main(int argc, char* argv[]) {
     printf("Client started, connecting to %s:%u\n", 
            argv[1], atoi(argv[2]));
     struct in_addr server_ip = get_interface_ip();
-    printf("DEBUG: Server IP address: %s\n", inet_ntoa(server_ip));
+    printf("User IP address: %s\n", inet_ntoa(server_ip));
     
     
     while (running) {
