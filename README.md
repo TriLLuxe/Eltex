@@ -35,7 +35,7 @@
   - [task 6.2](https://github.com/TriLLuxe/Eltex/tree/main/module2/6/6.2 "Путь к директории в репозитории")
   - [task 6.3](https://github.com/TriLLuxe/Eltex/tree/main/module2/6/6.3 "Путь к директории в репозитории")
 
-## [Module 3 - IPC:](https://github.com/TriLLuxe/Eltex/tree/main/module3)
+## Module 3 - IPC:
 - [task 01](https://github.com/TriLLuxe/Eltex/tree/main/module3/01 "Путь к директории в репозитории")
 - [task 02](https://github.com/TriLLuxe/Eltex/tree/main/module3/02 "Путь к директории в репозитории")
 - [task 03](https://github.com/TriLLuxe/Eltex/tree/main/module3/03 "Путь к директории в репозитории")
@@ -55,6 +55,6 @@
 - [task 17](https://github.com/TriLLuxe/Eltex/tree/main/module3/17 "Путь к директории в репозитории")
 - [task 18](https://github.com/TriLLuxe/Eltex/tree/main/module3/18 "Путь к директории в репозитории")
 
-## [Кросс-задания:](https://github.com/TriLLuxe/Eltex/tree/main/%D0%9A%D1%80%D0%BE%D1%81%D1%81-%D0%B7%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D1%8F)
+## Кросс-задания:
 - [task 1](https://github.com/TriLLuxe/Eltex/tree/main/%D0%9A%D1%80%D0%BE%D1%81%D1%81-%D0%B7%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D1%8F/task1)
 - [task 2](https://github.com/TriLLuxe/Eltex/tree/main/%D0%9A%D1%80%D0%BE%D1%81%D1%81-%D0%B7%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D1%8F/task2)
