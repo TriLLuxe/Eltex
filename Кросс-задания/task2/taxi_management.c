@@ -200,7 +200,6 @@ int main(int argc, char *argv[]) {
         if (ret > 0 && FD_ISSET(STDIN_FILENO, &readfds)) {
             fgets(input, sizeof(input), stdin);
             input[strcspn(input, "\n")] = 0;
-            
 
             if (strcmp(input, "create_driver") == 0) {
                 create_driver();
