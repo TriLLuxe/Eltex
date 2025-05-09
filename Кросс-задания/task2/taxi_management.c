@@ -90,11 +90,7 @@ void get_drivers() {
         printf("Нет активных драйверов.\n");
     } else {
         for (int i = 0; i < driver_count; i++) {
-            if (strncmp(drivers[i].status, "Busy", 4) == 0) {
-                printf("PID %d: Busy\n", drivers[i].pid);
-            } else {
-                printf("PID %d: %s\n", drivers[i].pid, drivers[i].status);
-            }
+            get_status(drivers[i].pid);
         }
     }
 }
