@@ -12,7 +12,7 @@
 
 // Структура сообщения для очередей 
 struct msgbuf {
-    long mtype;         // Тип сообщения (PID для драйверов, 1 для CLI)
+    long mtype;         // Тип сообщения 
     char mtext[256];    // Содержимое сообщения
 };
 
@@ -234,7 +234,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    // Очистка (не достигается в этом цикле)
+    // Очистка 
     msgctl(msgqid_to_drivers, IPC_RMID, NULL);
     msgctl(msgqid_from_drivers, IPC_RMID, NULL);
     return 0;
