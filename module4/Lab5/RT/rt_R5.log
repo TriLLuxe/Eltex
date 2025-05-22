@@ -1,5 +1,5 @@
 =~=~=~=~=~=~=~=~=~=~=~= PuTTY log 2025.05.22 19:58:30 =~=~=~=~=~=~=~=~=~=~=~=
-sh ip tab   route
+sh ip route
 Codes: C - connected, S - static, R - RIP, M - mobile, B - BGP
        D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
        N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
