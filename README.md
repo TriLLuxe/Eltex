@@ -58,7 +58,7 @@
 ## Кросс-задания:
 - [task 1](https://github.com/TriLLuxe/Eltex/tree/main/%D0%9A%D1%80%D0%BE%D1%81%D1%81-%D0%B7%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D1%8F/task1)
 - [task 2](https://github.com/TriLLuxe/Eltex/tree/main/%D0%9A%D1%80%D0%BE%D1%81%D1%81-%D0%B7%D0%B0%D0%B4%D0%B0%D0%BD%D0%B8%D1%8F/task2)
-## Module 4
+## Module 4 - сети
 - [lab1](https://github.com/TriLLuxe/Eltex/tree/main/module4/Lab1)
 - [lab2](https://github.com/TriLLuxe/Eltex/tree/main/module4/Lab2)
 - [lab3](https://github.com/TriLLuxe/Eltex/tree/main/module4/Lab3)
