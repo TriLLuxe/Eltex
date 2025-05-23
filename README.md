@@ -64,3 +64,5 @@
 - [lab3](https://github.com/TriLLuxe/Eltex/tree/main/module4/Lab3)
 - [lab4](https://github.com/TriLLuxe/Eltex/tree/main/module4/Lab4)
 - [lab5](https://github.com/TriLLuxe/Eltex/tree/main/module4/Lab5)
+## Module 5
+- [lab1](https://github.com/TriLLuxe/Eltex/tree/main/module5/lab1)
