@@ -48,7 +48,7 @@ int proc_init (void) {
 }
  
 void proc_cleanup(void) {
-    remove_proc_entry("hello", NULL);
+    remove_proc_entry(PROC_NAME, NULL);
     kfree(msg);
     pr_info("proc module removed\n");  // Сообщение при выгрузке модуля
 }
