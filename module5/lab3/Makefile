@@ -1,4 +1,4 @@
-obj-m += leds.o
+obj-m += leds_sysfs.o
 
 PWD := $(CURDIR)
 
