@@ -19,5 +19,5 @@
 
 ## Использование
 
-- Установить маску: `echo 3 > /sys/kernel/kbleds/led_mask` (например, для Num Lock и Caps Lock).
+- Установить маску: `#echo 3 > /sys/kernel/kbleds/led_mask` (например, для Num Lock и Caps Lock).
 - Выгрузить: `sudo rmmod kbleds`
