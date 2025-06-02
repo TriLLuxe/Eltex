@@ -35,7 +35,7 @@
    ```
    Проверьте, что модуль загружен:
    ```bash
-   lsmod | grep netlink_kern
+   lsmod | grep "netlink_kern"
    ```
 2. Запустите программу, указав сообщение (или без аргументов для стандартного "Hello from user"):
    ```bash
@@ -49,7 +49,7 @@
    ```
 3. Проверьте логи ядра:
    ```bash
-   dmesg | grep Netlink
+   dmesg | tail -5
    ```
    Пример вывода:
    ```
